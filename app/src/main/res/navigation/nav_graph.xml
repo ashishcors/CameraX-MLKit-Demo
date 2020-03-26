@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/cameraFragment">
+
+  <action
+      android:id="@+id/to_cameraFragment"
+      app:destination="@id/cameraFragment"
+      app:launchSingleTop="true" />
+  <action
+      android:id="@+id/to_barcodeFragment"
+      app:destination="@id/barcodeFragment"
+      app:launchSingleTop="true"
+      app:popUpTo="@id/cameraFragment"
+      app:popUpToInclusive="false" />
+  <action
+      android:id="@+id/to_luminosityFragment"
+      app:destination="@id/luminosityFragment"
+      app:launchSingleTop="true"
+      app:popUpTo="@id/cameraFragment"
+      app:popUpToInclusive="false" />
+  <action
+      android:id="@+id/to_faceDetectionFragment"
+      app:destination="@id/faceDetectionFragment"
+      app:launchSingleTop="true"
+      app:popUpTo="@id/cameraFragment"
+      app:popUpToInclusive="false" />
+  <action
+      android:id="@+id/to_textScanFragment"
+      app:destination="@id/textScanFragment"
+      app:launchSingleTop="true"
+      app:popUpTo="@id/cameraFragment"
+      app:popUpToInclusive="false" />
+  <action
+      android:id="@+id/to_objectDetectionFragment"
+      app:destination="@id/objectDetectionFragment"
+      app:launchSingleTop="true"
+      app:popUpTo="@id/cameraFragment"
+      app:popUpToInclusive="false" />
+
+  <fragment
+      android:id="@+id/cameraFragment"
+      android:name="com.example.cameraxdemo.ui.home.camera.CameraFragment"
+      android:label="CameraFragment"/>
+  <fragment
+      android:id="@+id/barcodeFragment"
+      android:name="com.example.cameraxdemo.ui.home.barcode.BarcodeFragment"
+      android:label="BarcodeFragment" />
+  <fragment
+      android:id="@+id/luminosityFragment"
+      android:name="com.example.cameraxdemo.ui.home.luminosity.LuminosityFragment"
+      android:label="LuminosityFragment" />
+  <fragment
+      android:id="@+id/textScanFragment"
+      android:name="com.example.cameraxdemo.ui.home.textScan.TextScanFragment"
+      android:label="TextScanFragment" />
+  <fragment
+      android:id="@+id/objectDetectionFragment"
+      android:name="com.example.cameraxdemo.ui.home.objectDetection.ObjectDetectionFragment"
+      android:label="ObjectDetectionFragment" />
+  <fragment
+      android:id="@+id/faceDetectionFragment"
+      android:name="com.example.cameraxdemo.ui.home.faceDetection.FaceDetectionFragment"
+      android:label="FaceDetectionFragment" />
+
+</navigation>
