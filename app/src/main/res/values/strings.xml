@@ -1,3 +1,8 @@
 <resources>
   <string name="app_name">CameraX Demo</string>
+  <string name="luminosity">Luminosity</string>
+  <string name="face">Face</string>
+  <string name="object">Object</string>
+  <string name="text">Text</string>
+  <string name="barcode">Barcode</string>
 </resources>

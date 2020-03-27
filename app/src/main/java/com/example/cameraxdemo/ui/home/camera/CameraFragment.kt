@@ -76,8 +76,8 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, HomeViewModel>() {
         }
         val outputFileOptions =
           ImageCapture.OutputFileOptions.Builder(
-                  addImageGetOutputStream(requireContext())
-              )
+              addImageGetOutputStream(requireContext())
+          )
               .setMetadata(metadata)
               .build()
         imageCapture.takePicture(
