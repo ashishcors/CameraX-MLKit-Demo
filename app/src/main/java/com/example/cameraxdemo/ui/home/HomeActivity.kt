@@ -1,32 +1,35 @@
 package com.example.cameraxdemo.ui.home
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
+import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.Metadata
 import androidx.camera.core.ImageCapture.OutputFileResults
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
+import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.example.cameraxdemo.AppConstants
 import com.example.cameraxdemo.R.drawable
 import com.example.cameraxdemo.databinding.ActivityHomeBinding
 import com.example.cameraxdemo.ui.base.BaseActivity
-import com.example.cameraxdemo.ui.home.barcode.BarcodeFragment
-import com.example.cameraxdemo.ui.home.luminosity.LuminosityFragment
+import com.example.cameraxdemo.ui.home.customViews.FocusReticuleView
 import com.example.cameraxdemo.utils.addImageGetOutputStream
 import com.example.cameraxdemo.utils.padWithDisplayCutout
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class HomeActivity : BaseActivity<ActivityHomeBinding, HomeViewModel>() {
 
@@ -50,41 +53,23 @@ class HomeActivity : BaseActivity<ActivityHomeBinding, HomeViewModel>() {
 
   private var cameraProvider: ProcessCameraProvider? = null
 
-  private val fragments = arrayOf<Fragment>(
-      BarcodeFragment(),
-//      TextScanFragment(),
-//      ObjectDetectionFragment(),
-//      FaceDetectionFragment(),
-      LuminosityFragment()
-  )
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     cameraExecutor = Executors.newSingleThreadExecutor()
+    initUI()
+    addListeners()
+    setUpTapToFocus()
     binding.previewView.post {
       displayId = binding.previewView.display.displayId
       buildCameraUi()
+      bindCameraUseCase()
     }
-    initUI()
-    initViewPager()
-    addListeners()
-    binding.previewView.post { bindCameraUseCase() }
   }
 
   private fun initUI() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       binding.cutoutSafeArea.padWithDisplayCutout()
     }
-  }
-
-  private fun initViewPager() {
-    val adapter = ViewPagerAdapter(supportFragmentManager, fragments)
-    binding.viewPager.adapter = adapter
-  }
-
-  override fun onPause() {
-    super.onPause()
-    cameraProvider?.unbindAll()
   }
 
   override fun onResume() {
@@ -205,6 +190,36 @@ class HomeActivity : BaseActivity<ActivityHomeBinding, HomeViewModel>() {
         )
       }
       bindCameraUseCase()
+    }
+  }
+
+  @SuppressLint("ClickableViewAccessibility")
+  private fun setUpTapToFocus() {
+    binding.previewView.setOnTouchListener { _, event ->
+      if (event.action != MotionEvent.ACTION_UP) {
+        return@setOnTouchListener true
+      }
+      val cameraControl = camera?.cameraControl
+      val metrics = DisplayMetrics().also { binding.previewView.display.getRealMetrics(it) }
+      val factory = SurfaceOrientedMeteringPointFactory(
+          metrics.widthPixels.toFloat(), metrics.heightPixels.toFloat()
+      )
+      binding.overlayContainer.clear()
+      binding.overlayContainer.add(
+          FocusReticuleView(binding.overlayContainer, event.x, event.y)
+      )
+      val point = factory.createPoint(event.x, event.y)
+      val action = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF)
+          .setAutoCancelDuration(5, TimeUnit.SECONDS)
+          .build()
+
+      val future = cameraControl?.startFocusAndMetering(action)
+      future?.addListener(Runnable {
+        //can get focusing result using future.get()
+        binding.overlayContainer.clear()
+      }, cameraExecutor)
+
+      return@setOnTouchListener true
     }
   }
 

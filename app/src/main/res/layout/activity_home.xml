@@ -15,8 +15,9 @@
       android:layout_height="match_parent"
       />
 
-  <androidx.viewpager2.widget.ViewPager2
-      android:id="@+id/viewPager"
+
+  <com.example.cameraxdemo.utils.customView.GraphicOverlay
+      android:id="@+id/overlayContainer"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       />
@@ -80,7 +81,6 @@
         android:textColor="@color/colorWhite"
         />
   </LinearLayout>
-
 
 
   <include
