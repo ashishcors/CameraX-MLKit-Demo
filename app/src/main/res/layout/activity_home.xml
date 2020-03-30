@@ -26,60 +26,10 @@
       android:id="@+id/cutout_safe_area"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_margin="10dp"
       android:orientation="horizontal"
       app:layout_constraintTop_toTopOf="parent"
       >
-    <TextView
-        android:id="@+id/btnAnalyzeBarcode"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:drawableTop="@drawable/ic_code"
-        android:text="@string/barcode"
-        android:textAlignment="center"
-        android:textColor="@color/colorWhite"
-        />
-    <TextView
-        android:id="@+id/btnAnalyzeText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:drawableTop="@drawable/ic_text"
-        android:text="@string/text"
-        android:textAlignment="center"
-        android:textColor="@color/colorWhite"
-        />
-    <TextView
-        android:id="@+id/btnAnalyzeObject"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:drawableTop="@drawable/ic_object"
-        android:text="@string/object"
-        android:textAlignment="center"
-        android:textColor="@color/colorWhite"
-        />
-    <TextView
-        android:id="@+id/btnAnalyzeFace"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:drawableTop="@drawable/ic_face"
-        android:text="@string/face"
-        android:textAlignment="center"
-        android:textColor="@color/colorWhite"
-        />
-    <TextView
-        android:id="@+id/btnAnalyzeLuminosity"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:drawableTop="@drawable/ic_luminosity"
-        android:text="@string/luminosity"
-        android:textAlignment="center"
-        android:textColor="@color/colorWhite"
-        />
+
   </LinearLayout>
 
 

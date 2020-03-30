@@ -7,7 +7,6 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
 import android.view.MotionEvent
-import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.camera.core.Camera
@@ -123,25 +122,7 @@ class HomeActivity : BaseActivity<ActivityHomeBinding, HomeViewModel>() {
   }
 
   private fun addListeners() {
-    binding.btnAnalyzeBarcode.setOnClickListener {
 
-    }
-
-    binding.btnAnalyzeText.setOnClickListener {
-
-    }
-
-    binding.btnAnalyzeObject.setOnClickListener {
-
-    }
-
-    binding.btnAnalyzeFace.setOnClickListener {
-
-    }
-
-    binding.btnAnalyzeLuminosity.setOnClickListener {
-
-    }
   }
 
   private fun buildCameraUi() {
@@ -222,31 +203,6 @@ class HomeActivity : BaseActivity<ActivityHomeBinding, HomeViewModel>() {
       }, cameraExecutor)
 
       return@setOnTouchListener true
-    }
-  }
-
-  @SuppressLint("ClickableViewAccessibility")
-  private fun setUpPinchToZoom() {
-    //TODO fix this
-    val listener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-      override fun onScale(detector: ScaleGestureDetector): Boolean {
-        val cameraControl = camera?.cameraControl
-        val currentZoomRatio: Float = camera?.cameraInfo?.zoomState?.value?.linearZoom ?: 1F
-        val delta = detector.scaleFactor
-        cameraControl?.setZoomRatio(currentZoomRatio * delta)
-        val future = cameraControl?.setZoomRatio(currentZoomRatio * delta)
-        future?.addListener(Runnable {
-          //can get focusing result using future.get()
-
-        }, cameraExecutor)
-        return true
-      }
-    }
-
-    val scaleGestureDetector = ScaleGestureDetector(this, listener)
-
-    binding.overlayContainer.setOnTouchListener { _, event ->
-      return@setOnTouchListener scaleGestureDetector.onTouchEvent(event)
     }
   }
 
