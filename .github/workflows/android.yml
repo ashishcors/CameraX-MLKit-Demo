@@ -17,5 +17,8 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: remove NDK
+      run: sudo rm -r ndk/
+          | sudo rm -r ndk-bundle/
     - name: Build with Gradle
       run: ./gradlew build
