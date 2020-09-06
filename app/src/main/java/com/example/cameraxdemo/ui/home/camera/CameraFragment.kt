@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -18,6 +16,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.example.cameraxdemo.AppConstants.TAG
 import com.example.cameraxdemo.R.drawable
+import com.example.cameraxdemo.R.layout
 import com.example.cameraxdemo.databinding.FragmentCameraBinding
 import com.example.cameraxdemo.ui.base.BaseFragment
 import com.example.cameraxdemo.ui.home.HomeActivity
@@ -27,6 +26,10 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class CameraFragment : BaseFragment<FragmentCameraBinding, HomeViewModel>() {
+
+  override fun getActivityViewModelClass() = HomeViewModel::class.java
+  override fun getActivityViewModelOwner() = (activity as HomeActivity)
+  override fun getLayoutId() = layout.fragment_camera
 
   private var displayId = -1
   private var lensFacing = CameraSelector.LENS_FACING_BACK
@@ -75,9 +78,7 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, HomeViewModel>() {
           isReversedHorizontal = lensFacing == CameraSelector.LENS_FACING_FRONT
         }
         val outputFileOptions =
-          ImageCapture.OutputFileOptions.Builder(
-                  addImageGetOutputStream(requireContext())
-              )
+          ImageCapture.OutputFileOptions.Builder(addImageGetOutputStream(requireContext()))
               .setMetadata(metadata)
               .build()
         imageCapture.takePicture(
@@ -130,14 +131,14 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, HomeViewModel>() {
           .requireLensFacing(lensFacing)
           .build()
       val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-      cameraProviderFuture.addListener(Runnable {
+      cameraProviderFuture.addListener({
         cameraProvider = cameraProviderFuture.get()
         preview = Preview.Builder()
             .setTargetResolution(screenSize)
             .setTargetRotation(rotation)
             .build()
 
-        preview?.setSurfaceProvider(binding.previewView.previewSurfaceProvider)
+        preview?.setSurfaceProvider(binding.previewView.createSurfaceProvider())
 
         imageCapture = ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
@@ -161,13 +162,5 @@ class CameraFragment : BaseFragment<FragmentCameraBinding, HomeViewModel>() {
       }, ContextCompat.getMainExecutor(requireContext()))
     }
   }
-
-  override fun getActivityViewModelClass() = HomeViewModel::class.java
-  override fun getActivityViewModelOwner() = (activity as HomeActivity)
-  override fun getInflatedViewBinding(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    attachToParent: Boolean
-  ): FragmentCameraBinding = FragmentCameraBinding.inflate(inflater, container, attachToParent)
 }
 

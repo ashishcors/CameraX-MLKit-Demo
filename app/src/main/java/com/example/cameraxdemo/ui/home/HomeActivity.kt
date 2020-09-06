@@ -4,8 +4,9 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
-import com.example.cameraxdemo.R
+import androidx.navigation.fragment.findNavController
+import com.example.cameraxdemo.R.id
+import com.example.cameraxdemo.R.layout
 import com.example.cameraxdemo.databinding.ActivityHomeBinding
 import com.example.cameraxdemo.ui.base.BaseActivity
 import com.example.cameraxdemo.utils.padWithDisplayCutout
@@ -22,11 +23,12 @@ class HomeActivity : BaseActivity<ActivityHomeBinding, HomeViewModel>() {
           View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
   }
 
-  private lateinit var navController: NavController
+  private var navController: NavController? = null
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    navController = findNavController(R.id.nav_host_fragment)
+    navController = supportFragmentManager.findFragmentById(id.nav_host_fragment)
+        ?.findNavController()
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       // Use extension method to pad "inside" view containing UI using display cutout's bounds
       binding.cutoutSafeArea.padWithDisplayCutout()
@@ -41,23 +43,23 @@ class HomeActivity : BaseActivity<ActivityHomeBinding, HomeViewModel>() {
 
   private fun addListeners() {
     binding.btnAnalyzeBarcode.setOnClickListener {
-      navController.navigate(R.id.to_barcodeFragment)
+      navController?.navigate(id.to_barcodeFragment)
     }
 
     binding.btnAnalyzeText.setOnClickListener {
-      navController.navigate(R.id.to_textScanFragment)
+      navController?.navigate(id.to_textScanFragment)
     }
 
     binding.btnAnalyzeObject.setOnClickListener {
-      navController.navigate(R.id.to_objectDetectionFragment)
+      navController?.navigate(id.to_objectDetectionFragment)
     }
 
     binding.btnAnalyzeFace.setOnClickListener {
-      navController.navigate(R.id.to_faceDetectionFragment)
+      navController?.navigate(id.to_faceDetectionFragment)
     }
 
     binding.btnAnalyzeLuminosity.setOnClickListener {
-      navController.navigate(R.id.to_luminosityFragment)
+      navController?.navigate(id.to_luminosityFragment)
     }
   }
 
@@ -65,8 +67,7 @@ class HomeActivity : BaseActivity<ActivityHomeBinding, HomeViewModel>() {
     window.decorView.systemUiVisibility = FLAGS_FULLSCREEN
   }
 
-  override fun getInflatedViewBinding(): ActivityHomeBinding =
-    ActivityHomeBinding.inflate(layoutInflater)
+  override fun layoutId() = layout.activity_home
 
   override fun getViewModelClass() = HomeViewModel::class.java
 }

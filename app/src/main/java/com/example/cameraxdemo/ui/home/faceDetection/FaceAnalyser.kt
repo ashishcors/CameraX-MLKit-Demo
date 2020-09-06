@@ -4,38 +4,38 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import com.google.firebase.ml.vision.FirebaseVision
-import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
-import com.google.firebase.ml.vision.face.FirebaseVisionFace
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions
-import java.util.concurrent.TimeUnit
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.Face
+import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetectorOptions
 
 class FaceAnalyser(
   mode: Int,
-  private val listener: (MutableList<FirebaseVisionFace>) -> Unit
+  private val listener: (MutableList<Face>) -> Unit
 ) : ImageAnalysis.Analyzer {
 
   companion object {
-    private const val TAG = "CameraXAnalyser"
+    private const val TAG = "FaceAnalyser"
     const val HIGH_ACCURACY = 0
     const val REAL_TIME = 1
   }
 
-  private var lastTimeStamp = 0L
+  private val realTimeOpts by lazy {
+    FaceDetectorOptions.Builder()
+        .setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
+        .build()
+  }
 
-  private var image: FirebaseVisionImage? = null
-  private val realTimeOpts = FirebaseVisionFaceDetectorOptions.Builder()
-      .setContourMode(FirebaseVisionFaceDetectorOptions.ALL_CONTOURS)
-      .build()
+  private val highAccuracyOpts by lazy {
+    FaceDetectorOptions.Builder()
+        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+        .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+        .build()
+  }
 
-  private val highAccuracyOpts = FirebaseVisionFaceDetectorOptions.Builder()
-      .setPerformanceMode(FirebaseVisionFaceDetectorOptions.ACCURATE)
-      .setLandmarkMode(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
-      .setClassificationMode(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
-      .build()
-  private val detector = FirebaseVision.getInstance()
-      .getVisionFaceDetector(
+  private val detector = FaceDetection
+      .getClient(
           when (mode) {
             HIGH_ACCURACY -> highAccuracyOpts
             REAL_TIME -> realTimeOpts
@@ -43,41 +43,18 @@ class FaceAnalyser(
           }
       )
 
-  private fun degreesToFirebaseRotation(degrees: Int): Int = when (degrees) {
-    0 -> FirebaseVisionImageMetadata.ROTATION_0
-    90 -> FirebaseVisionImageMetadata.ROTATION_90
-    180 -> FirebaseVisionImageMetadata.ROTATION_180
-    270 -> FirebaseVisionImageMetadata.ROTATION_270
-    else -> throw Exception("Invalid rotation value")
-  }
-
   @SuppressLint("UnsafeExperimentalUsageError")
   override fun analyze(imageProxy: ImageProxy) {
-    val currentTimeStamp = System.currentTimeMillis()
-    val intervalInSeconds = TimeUnit.SECONDS.toSeconds(1)
-    val deltaTime = currentTimeStamp - lastTimeStamp
-    if (deltaTime >= intervalInSeconds) {
-      lastTimeStamp = currentTimeStamp
-      val mediaImage = imageProxy.image
-      val rotationDegrees = imageProxy.imageInfo.rotationDegrees
-      val imageRotation = degreesToFirebaseRotation(rotationDegrees)
-      if (mediaImage != null && image == null) {
-        image = FirebaseVisionImage.fromMediaImage(mediaImage, imageRotation)
-        image?.let { image ->
-          detector.detectInImage(image)
-              .addOnSuccessListener { firebaseVisionFace ->
-                this.image = null
-                listener.invoke(firebaseVisionFace)
-              }
-              .addOnFailureListener {
-                Log.e(
-                    TAG, "Error: ${it.message}", it
-                )
-              }
-        }
-      }
+    val mediaImage = imageProxy.image ?: kotlin.run {
+      imageProxy.close()
+      return
     }
-    imageProxy.close()
+    val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+    detector.process(image)
+        .addOnSuccessListener { listener.invoke(it) }
+        .addOnFailureListener { Log.e(TAG, "Error: ${it.message}", it) }
+        .addOnCompleteListener { imageProxy.close() }
+
   }
 
 }

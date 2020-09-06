@@ -1,13 +1,15 @@
 package com.example.cameraxdemo.ui.base
 
 import android.os.Bundle
+import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.ViewModelProvider
-import androidx.viewbinding.ViewBinding
 import com.example.cameraxdemo.utils.PrefsUtil
 import com.example.cameraxdemo.utils.UiUtils
 
-abstract class BaseActivity<B : ViewBinding, VM : BaseViewModel> : AppCompatActivity() {
+abstract class BaseActivity<B : ViewDataBinding, VM : BaseViewModel> : AppCompatActivity() {
 
   protected lateinit var binding: B
   protected lateinit var viewModel: VM
@@ -17,12 +19,16 @@ abstract class BaseActivity<B : ViewBinding, VM : BaseViewModel> : AppCompatActi
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-    binding = getInflatedViewBinding()
-    setContentView(binding.root)
+    binding = DataBindingUtil.setContentView(this, layoutId())
     viewModel = ViewModelProvider(this)[getViewModelClass()]
     uiUtils = UiUtils(this)
     prefsUtil = PrefsUtil(this)
   }
+
+  @LayoutRes
+  abstract fun layoutId(): Int
+
+  abstract fun getViewModelClass(): Class<VM>
 
   protected fun showProgress() {
     uiUtils.showProgress(supportFragmentManager)
@@ -32,10 +38,7 @@ abstract class BaseActivity<B : ViewBinding, VM : BaseViewModel> : AppCompatActi
     uiUtils.hideProgress()
   }
 
-  abstract fun getInflatedViewBinding(): B
-
-  abstract fun getViewModelClass(): Class<VM>
-
+  @Suppress("SameParameterValue")
   protected fun showMessage(message: String) {
     uiUtils.showMessage(message)
   }

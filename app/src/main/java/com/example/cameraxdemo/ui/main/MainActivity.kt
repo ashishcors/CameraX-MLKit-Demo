@@ -6,16 +6,16 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.cameraxdemo.R.layout
 import com.example.cameraxdemo.databinding.ActivityMainBinding
 import com.example.cameraxdemo.ui.base.BaseActivity
 import com.example.cameraxdemo.ui.home.HomeActivity
 
 class MainActivity : BaseActivity<ActivityMainBinding, MainViewModel>() {
 
-  override fun getInflatedViewBinding(): ActivityMainBinding =
-    ActivityMainBinding.inflate(layoutInflater)
+  override fun layoutId() = layout.activity_main
 
-  override fun getViewModelClass(): Class<MainViewModel> = MainViewModel::class.java
+  override fun getViewModelClass() = MainViewModel::class.java
 
   companion object {
     private val REQUIRED_PERMISSIONS = arrayOf(

@@ -5,11 +5,11 @@ import android.graphics.Color
 import android.graphics.Paint
 import com.example.cameraxdemo.utils.customView.GraphicOverlay
 import com.example.cameraxdemo.utils.customView.GraphicOverlay.Graphic
-import com.google.firebase.ml.vision.objects.FirebaseVisionObject
+import com.google.mlkit.vision.objects.DetectedObject
 
 class ObjectOverlayView(
   overlay: GraphicOverlay,
-  private val firebaseVisionObject: FirebaseVisionObject
+  private val firebaseVisionObject: DetectedObject
 ) : Graphic(overlay) {
 
   private val paintFill = Paint(Paint.ANTI_ALIAS_FLAG).apply {

@@ -3,17 +3,16 @@ package com.example.cameraxdemo.ui.home.faceDetection
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PointF
 import android.graphics.Typeface
 import com.example.cameraxdemo.utils.customView.GraphicOverlay
 import com.example.cameraxdemo.utils.customView.GraphicOverlay.Graphic
-import com.google.firebase.ml.vision.common.FirebaseVisionPoint
-import com.google.firebase.ml.vision.face.FirebaseVisionFace
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceContour
-import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark
+import com.google.mlkit.vision.face.Face
+import com.google.mlkit.vision.face.FaceContour
 
 class FaceOverlayView(
   overlay: GraphicOverlay,
-  private val faces: MutableList<FirebaseVisionFace>
+  private val faces: MutableList<Face>
 ) : Graphic(overlay) {
 
   private val paintFill = Paint(Paint.ANTI_ALIAS_FLAG).apply {
@@ -42,7 +41,7 @@ class FaceOverlayView(
 
   private fun drawFace(
     canvas: Canvas,
-    face: FirebaseVisionFace
+    face: Face
   ) {
     val x = translateX(
         face.boundingBox
@@ -70,40 +69,40 @@ class FaceOverlayView(
     canvas.drawRect(left, top, right, bottom, paintFill)
 
     // If contour detection was enabled:
-    val pointsToDraw: MutableList<FirebaseVisionPoint> = arrayListOf()
+    val pointsToDraw: MutableList<PointF> = arrayListOf()
     pointsToDraw.apply {
-      addAll(face.getContour(FirebaseVisionFaceContour.FACE).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.LEFT_EYE).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.RIGHT_EYE).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.LOWER_LIP_TOP).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.LOWER_LIP_BOTTOM).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.UPPER_LIP_TOP).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.UPPER_LIP_BOTTOM).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.NOSE_BOTTOM).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.NOSE_BRIDGE).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.LEFT_EYEBROW_BOTTOM).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.LEFT_EYEBROW_TOP).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.RIGHT_EYEBROW_TOP).points)
-      addAll(face.getContour(FirebaseVisionFaceContour.RIGHT_EYEBROW_BOTTOM).points)
+      addAll(face.getContour(FaceContour.FACE)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.LEFT_EYE)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.RIGHT_EYE)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.LOWER_LIP_TOP)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.LOWER_LIP_BOTTOM)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.UPPER_LIP_TOP)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.UPPER_LIP_BOTTOM)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.NOSE_BOTTOM)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.NOSE_BRIDGE)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.LEFT_EYEBROW_BOTTOM)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.LEFT_EYEBROW_TOP)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.RIGHT_EYEBROW_TOP)?.points.orEmpty())
+      addAll(face.getContour(FaceContour.RIGHT_EYEBROW_BOTTOM)?.points.orEmpty())
     }
 
-    val leftEar = face.getLandmark(FirebaseVisionFaceLandmark.LEFT_EAR)
-    leftEar?.let {
-      val leftEarPos = leftEar.position
-    }
+//    val leftEar = face.getLandmark(FaceLandmark.LEFT_EAR)
+//    leftEar?.let {
+//      val leftEarPos = leftEar.position
+//    }
 
-    // If classification was enabled:
-    if (face.smilingProbability != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
-      val smileProb = face.smilingProbability
-    }
-    if (face.rightEyeOpenProbability != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
-      val rightEyeOpenProb = face.rightEyeOpenProbability
-    }
+//    // If classification was enabled:
+//    if (face.smilingProbability != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+//      val smileProb = face.smilingProbability
+//    }
+//    if (face.rightEyeOpenProbability != FirebaseVisionFace.UNCOMPUTED_PROBABILITY) {
+//      val rightEyeOpenProb = face.rightEyeOpenProbability
+//    }
 
-    // If face tracking was enabled:
-    if (face.trackingId != FirebaseVisionFace.INVALID_ID) {
-      val id = face.trackingId
-    }
+//    // If face tracking was enabled:
+//    if (face.trackingId != Face.INVALID_ID) {
+//      val id = face.trackingId
+//    }
     pointsToDraw.forEach {
       canvas.drawPoint(translateX(it.x), it.y, paintStroke)
     }

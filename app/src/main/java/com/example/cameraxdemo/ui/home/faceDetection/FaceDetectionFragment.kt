@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -15,15 +13,20 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.example.cameraxdemo.AppConstants.TAG
 import com.example.cameraxdemo.R
+import com.example.cameraxdemo.R.layout
 import com.example.cameraxdemo.databinding.FragmentFaceDetectionBinding
 import com.example.cameraxdemo.ui.base.BaseFragment
 import com.example.cameraxdemo.ui.home.HomeActivity
 import com.example.cameraxdemo.ui.home.HomeViewModel
-import com.google.firebase.ml.vision.face.FirebaseVisionFace
+import com.google.mlkit.vision.face.Face
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class FaceDetectionFragment : BaseFragment<FragmentFaceDetectionBinding, HomeViewModel>() {
+
+  override fun getActivityViewModelClass() = HomeViewModel::class.java
+  override fun getActivityViewModelOwner() = (activity as HomeActivity)
+  override fun getLayoutId() = layout.fragment_face_detection
 
   private var displayId = -1
   private var lensFacing = CameraSelector.LENS_FACING_FRONT
@@ -90,14 +93,14 @@ class FaceDetectionFragment : BaseFragment<FragmentFaceDetectionBinding, HomeVie
           .requireLensFacing(lensFacing)
           .build()
       val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-      cameraProviderFuture.addListener(Runnable {
+      cameraProviderFuture.addListener({
         cameraProvider = cameraProviderFuture.get()
         preview = Preview.Builder()
             .setTargetResolution(screenSize)
             .setTargetRotation(rotation)
             .build()
 
-        preview?.setSurfaceProvider(binding.previewView.previewSurfaceProvider)
+        preview?.setSurfaceProvider(binding.previewView.createSurfaceProvider())
 
         imageAnalyser =
           ImageAnalysis.Builder()
@@ -107,8 +110,8 @@ class FaceDetectionFragment : BaseFragment<FragmentFaceDetectionBinding, HomeVie
               .apply {
                 setAnalyzer(
                     cameraExecutor,
-                    FaceAnalyser(faceAnalyserMode) { firebaseVisionFaceList ->
-                      createOverlays(firebaseVisionFaceList)
+                    FaceAnalyser(faceAnalyserMode) { faceList ->
+                      createOverlays(faceList)
                     }
                 )
               }
@@ -130,24 +133,12 @@ class FaceDetectionFragment : BaseFragment<FragmentFaceDetectionBinding, HomeVie
     }
   }
 
-  private fun createOverlays(firebaseVisionFaceList: MutableList<FirebaseVisionFace>) {
+  private fun createOverlays(faceList: MutableList<Face>) {
     binding?.let { binding ->
       binding.overlayContainer.clear()
-      val overlayView =
-        FaceOverlayView(
-            binding.overlayContainer, firebaseVisionFaceList
-        )
+      val overlayView = FaceOverlayView(binding.overlayContainer, faceList)
       binding.overlayContainer.add(overlayView)
     }
   }
-
-  override fun getActivityViewModelClass() = HomeViewModel::class.java
-  override fun getActivityViewModelOwner() = (activity as HomeActivity)
-  override fun getInflatedViewBinding(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    attachToParent: Boolean
-  ): FragmentFaceDetectionBinding =
-    FragmentFaceDetectionBinding.inflate(inflater, container, attachToParent)
 }
 

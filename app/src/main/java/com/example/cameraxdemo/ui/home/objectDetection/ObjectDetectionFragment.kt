@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources.getDrawable
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
@@ -14,16 +12,21 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.example.cameraxdemo.AppConstants.TAG
-import com.example.cameraxdemo.R
+import com.example.cameraxdemo.R.drawable
+import com.example.cameraxdemo.R.layout
 import com.example.cameraxdemo.databinding.FragmentObjectDetectionBinding
 import com.example.cameraxdemo.ui.base.BaseFragment
 import com.example.cameraxdemo.ui.home.HomeActivity
 import com.example.cameraxdemo.ui.home.HomeViewModel
-import com.google.firebase.ml.vision.objects.FirebaseVisionObject
+import com.google.mlkit.vision.objects.DetectedObject
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class ObjectDetectionFragment : BaseFragment<FragmentObjectDetectionBinding, HomeViewModel>() {
+
+  override fun getActivityViewModelClass() = HomeViewModel::class.java
+  override fun getActivityViewModelOwner() = (activity as HomeActivity)
+  override fun getLayoutId() = layout.fragment_object_detection
 
   private var displayId = -1
   private var lensFacing = CameraSelector.LENS_FACING_BACK
@@ -54,9 +57,9 @@ class ObjectDetectionFragment : BaseFragment<FragmentObjectDetectionBinding, Hom
         multiObjectMode = multiObjectMode.not()
         binding.btnDetectionMode.setImageDrawable(
             if (multiObjectMode)
-              getDrawable(requireContext(), R.drawable.ic_filter_all)
+              getDrawable(requireContext(), drawable.ic_filter_all)
             else
-              getDrawable(requireContext(), R.drawable.ic_filter_1)
+              getDrawable(requireContext(), drawable.ic_filter_1)
         )
         bindCameraUseCase()
         binding.overlayContainer.clear()
@@ -86,30 +89,27 @@ class ObjectDetectionFragment : BaseFragment<FragmentObjectDetectionBinding, Hom
           .requireLensFacing(lensFacing)
           .build()
       val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-      cameraProviderFuture.addListener(Runnable {
+      cameraProviderFuture.addListener({
         cameraProvider = cameraProviderFuture.get()
         preview = Preview.Builder()
             .setTargetResolution(screenSize)
             .setTargetRotation(rotation)
             .build()
 
-        preview?.setSurfaceProvider(binding.previewView.previewSurfaceProvider)
+        preview?.setSurfaceProvider(binding.previewView.createSurfaceProvider())
 
-        imageAnalyser =
-          ImageAnalysis.Builder()
-              .setTargetResolution(screenSize)
-              .setTargetRotation(rotation)
-              .build()
-              .apply {
-                setAnalyzer(
-                    cameraExecutor,
-                    ObjectAnalyser(
-                        multiObjectMode
-                    ) { firebaseVisionObjectList ->
-                      createOverlays(firebaseVisionObjectList)
-                    }
-                )
-              }
+        imageAnalyser = ImageAnalysis.Builder()
+            .setTargetResolution(screenSize)
+            .setTargetRotation(rotation)
+            .build()
+            .apply {
+              setAnalyzer(
+                  cameraExecutor,
+                  ObjectAnalyser(multiObjectMode) { objectList ->
+                    createOverlays(objectList)
+                  }
+              )
+            }
 
 
         cameraProvider?.unbindAll()
@@ -128,10 +128,10 @@ class ObjectDetectionFragment : BaseFragment<FragmentObjectDetectionBinding, Hom
     }
   }
 
-  private fun createOverlays(firebaseVisionObjectList: MutableList<FirebaseVisionObject>) {
+  private fun createOverlays(objectList: MutableList<DetectedObject>) {
     binding?.overlayContainer?.clear()
     binding?.let { binding ->
-      firebaseVisionObjectList.forEach { firebaseVisionObject ->
+      objectList.forEach { firebaseVisionObject ->
         val overlayView =
           ObjectOverlayView(
               binding.overlayContainer, firebaseVisionObject
@@ -141,13 +141,5 @@ class ObjectDetectionFragment : BaseFragment<FragmentObjectDetectionBinding, Hom
     }
   }
 
-  override fun getActivityViewModelClass() = HomeViewModel::class.java
-  override fun getActivityViewModelOwner() = (activity as HomeActivity)
-  override fun getInflatedViewBinding(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    attachToParent: Boolean
-  ): FragmentObjectDetectionBinding =
-    FragmentObjectDetectionBinding.inflate(inflater, container, attachToParent)
 }
 

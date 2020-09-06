@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
 import android.util.Size
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -13,6 +11,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.example.cameraxdemo.AppConstants.TAG
+import com.example.cameraxdemo.R.layout
 import com.example.cameraxdemo.databinding.FragmentBarcodeBinding
 import com.example.cameraxdemo.ui.base.BaseFragment
 import com.example.cameraxdemo.ui.home.HomeActivity
@@ -21,6 +20,10 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class BarcodeFragment : BaseFragment<FragmentBarcodeBinding, HomeViewModel>() {
+
+  override fun getActivityViewModelClass() = HomeViewModel::class.java
+  override fun getActivityViewModelOwner() = (activity as HomeActivity)
+  override fun getLayoutId() = layout.fragment_barcode
 
   private var displayId = -1
   private var lensFacing = CameraSelector.LENS_FACING_BACK
@@ -62,15 +65,16 @@ class BarcodeFragment : BaseFragment<FragmentBarcodeBinding, HomeViewModel>() {
       val cameraSelector = CameraSelector.Builder()
           .requireLensFacing(lensFacing)
           .build()
+
       val cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext())
-      cameraProviderFuture.addListener(Runnable {
+      cameraProviderFuture.addListener({
         cameraProvider = cameraProviderFuture.get()
         preview = Preview.Builder()
             .setTargetResolution(screenSize)
             .setTargetRotation(rotation)
             .build()
 
-        preview?.setSurfaceProvider(binding.previewView.previewSurfaceProvider)
+        preview?.setSurfaceProvider(binding.previewView.createSurfaceProvider())
 
         imageAnalyser =
           ImageAnalysis.Builder()
@@ -113,13 +117,5 @@ class BarcodeFragment : BaseFragment<FragmentBarcodeBinding, HomeViewModel>() {
       )
     }
   }
-
-  override fun getActivityViewModelClass() = HomeViewModel::class.java
-  override fun getActivityViewModelOwner() = (activity as HomeActivity)
-  override fun getInflatedViewBinding(
-    inflater: LayoutInflater,
-    container: ViewGroup?,
-    attachToParent: Boolean
-  ): FragmentBarcodeBinding = FragmentBarcodeBinding.inflate(inflater, container, attachToParent)
 }
 

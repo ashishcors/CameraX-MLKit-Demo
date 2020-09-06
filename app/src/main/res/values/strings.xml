@@ -1,3 +1,12 @@
 <resources>
   <string name="app_name">CameraX Demo</string>
+  <string name="text_luminosity">Luminosity</string>
+  <string name="text_face">Face</string>
+  <string name="text_object">Object</string>
+  <string name="text_text">Text</string>
+  <string name="text_barcode">Barcode</string>
+  <string name="text_detection_mode">Detection Mode</string>
+  <string name="text_capture_image">Capture Image</string>
+  <string name="text_flip_camera">Flip Camera</string>
+  <string name="text_toggle_flash">Toggle Flash</string>
 </resources>

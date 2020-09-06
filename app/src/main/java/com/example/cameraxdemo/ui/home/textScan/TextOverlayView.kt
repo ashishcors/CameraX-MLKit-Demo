@@ -9,7 +9,7 @@ import android.graphics.Typeface
 import androidx.core.graphics.toPointF
 import com.example.cameraxdemo.utils.customView.GraphicOverlay
 import com.example.cameraxdemo.utils.customView.GraphicOverlay.Graphic
-import com.google.firebase.ml.vision.text.FirebaseVisionText.TextBlock
+import com.google.mlkit.vision.text.Text.TextBlock
 
 class TextOverlayView(
   overlay: GraphicOverlay,
