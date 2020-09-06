@@ -1,2 +1,2 @@
-# CameraX-Firebase-ML-Vision-Demo
-CameraX + Firebase ML Vision = ❤️
+# CameraX ML Kit Demo
+CameraX + ML Kit = ❤️
