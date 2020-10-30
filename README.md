@@ -1,14 +1,14 @@
 # CameraX ML Kit Demo
 CameraX + ML Kit = ❤️
 
-Using Android Jetpack CameraX API with ML Kit (previously firebase ML Kit).
+Basic demo app using Android Jetpack CameraX API with ML Kit (previously firebase ML Kit).
 
 ### Features:
 - Camera (front & back)
 - Barcode Scanning
 - Text Bounding
-- Object Bounding & tracking (single & multiple)
-- Face boulding, tracking & facial feature detection
+- Object bounding & tracking (single & multiple)
+- Face bounding, tracking & facial feature detection
 
 ### Preview:
 
